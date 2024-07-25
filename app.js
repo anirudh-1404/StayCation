@@ -8,8 +8,7 @@ const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
 const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require('./utils/ExpressError.js');
-const { listingSchema } = require('./schema.js');
-const { reviewSchema } = require('./schema.js');
+const { listingSchema, reviewSchema } = require('./schema.js');
 
 
 app.set('view engine', "ejs")
@@ -84,6 +83,19 @@ app.post('/listings', validateListing, wrapAsync(async (req, res, next) => {
 
 }));
 
+// for review
+app.post('/listings/:id/reviews', validateReview, wrapAsync(async (req, res, next) => {
+    let listings = await listing.findById(req.params.id);
+    let newReview = new Review(req.body.review);
+
+    listings.reviews.push(newReview);
+
+    await listings.save()
+    await newReview.save();
+
+    res.redirect(`/listings/${listings._id}`);
+}));
+
 app.get('/listings/:id/edit', wrapAsync(async (req, res) => {
     let { id } = req.params;
     let listings = await listing.findById(id);
@@ -104,23 +116,12 @@ app.delete('/listings/:id', wrapAsync(async (req, res) => {
     res.redirect('/listings')
 }));
 
-// for review
-app.post('/listings/:id/reviews', validateReview, wrapAsync(async (req, res) => {
-    let listings = await listing.findById(req.params.id);
-    let newReview = new Review(req.body.review);
 
-    listings.reviews.push(newReview);
 
-    await listings.save()
-    await newReview.save();
-
-    res.redirect(`/listings/${listings._id}`);
-}));
-
-//
+//show route
 app.get('/listings/:id/', wrapAsync(async (req, res) => {
     let { id } = req.params;
-    let listings = await listing.findById(id)
+    let listings = await listing.findById(id).populate("reviews").exec();
     console.log(req.body.listing)
     res.render('listings/show.ejs', { listings })
 }));
