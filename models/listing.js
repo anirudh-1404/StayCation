@@ -9,8 +9,8 @@ const listingSchema = new Schema({
   image: {
     type : String     
   },
-  price: { type: Number, required: true },
   location: { type: String, required: true },
+  price: { type: Number, required: true },
   country: { type: String, required: true },
   reviews: [
     {
