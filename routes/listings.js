@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const wrapAsync = require("../utils/wrapAsync.js");
 const ExpressError = require('../utils/ExpressError.js');
-const { listingSchema, reviewSchema } = require('../schema.js');
+const { listingSchema } = require('../schema.js');
 const listing = require('../models/listing.js');
-const Listing = require('../models/listing.js');
+const Review = require('../models/review.js');
 
 const validateListing = (req, res, next) => {
     let { error } = listingSchema.validate(req.body);
@@ -24,7 +24,7 @@ router.get('/', wrapAsync(async (req, res) => {
 }));
 
 //New
-router.get('/new', (req, res) => {
+router.get('/new', async(req, res) => {
     res.render('listings/new.ejs');
 })   //isko show ke upar rakha kyunki pehle hamara app.js new ko id samajh raha tha and usko dhoond rha tha
 
@@ -49,6 +49,16 @@ router.post('/', validateListing, wrapAsync(async (req, res, next) => {
 
 }));
 
+//show route
+router.get('/:id', wrapAsync(async (req, res) => {
+    let { id } = req.params;
+    let listings = await listing.findById(id).populate("reviews").exec();
+    console.log('Listing:', listings); // Log the listing object
+    if (!listings) {
+        throw new ExpressError(404, "Listing not found!");
+    }
+    res.render('listings/show.ejs', { listings });
+}))
 
 //Edit
 router.get('/:id/edit', wrapAsync(async (req, res) => {
@@ -64,6 +74,7 @@ router.put('/:id', validateListing, wrapAsync(async (req, res) => {
     res.redirect(`/listings/${id}`)
 }));
 
+
 //Delete
 router.delete('/:id', wrapAsync(async (req, res) => {
     let { id } = req.params;
@@ -72,13 +83,5 @@ router.delete('/:id', wrapAsync(async (req, res) => {
     res.redirect('/listings')
 }));
 
-
-//show route
-router.get('/:id', wrapAsync(async (req, res) => {
-    let { id } = req.params;
-    let listings = await listing.findById(id).populate("reviews").exec();
-    console.log(req.body.listing)
-    res.render('listings/show.ejs', { listings })
-}));
 
 module.exports = router;
