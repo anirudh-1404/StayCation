@@ -7,22 +7,20 @@ const ejsMate = require('ejs-mate');
 const ExpressError = require('./utils/ExpressError.js');
 const listing = require('./models/listing.js');
 
+// USE THESE BEFORE YOUR ROUTES TO ADD REVIEWS, AND METHODOVERRIDE - TO ENSURE THAT BODY IS PROPERLY PARSED AND AVAILABLE TO ROUTE HANDLERS.
+app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride("_method"))
+
+app.set('view engine', "ejs")
+app.set("views", path.join(__dirname, "views"));
+app.engine('ejs', ejsMate); 
+app.use(express.static(path.join(__dirname, "/public")))
 
 const listings = require('./routes/listings.js');
 const reviews = require('./routes/reviews.js');
 
-
 app.use('/listings', listings)
 app.use('/listings/:id/reviews', reviews);
-
-
-app.set('view engine', "ejs")
-app.set("views", path.join(__dirname, "views"));
-app.use(express.urlencoded({ extended: true }));
-app.use(methodOverride("_method"))
-app.engine('ejs', ejsMate); 
- 
-app.use(express.static(path.join(__dirname, "/public")))
 
 main().then((res) => { console.log('connection successful') })
     .catch((err) => { console.log(err) })
@@ -36,9 +34,10 @@ async function main() {
 // })
 
 
-//if request goes to any other path except of all these
+// if request goes to any other path except of all these
 app.all("*", (req, res, next) => {
     next(new ExpressError(404, "PAGE NOT FOUND!"))
+    console.log('PAGE NOT FOUND!');
 })
 
 //error middlware
