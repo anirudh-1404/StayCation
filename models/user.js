@@ -1,5 +1,3 @@
-import { required } from 'joi';
-
 const mongoose = require('mongoose');
 const {Schema} = mongoose;
 const passportLocalMongoose = require('passport-local-mongoose');
@@ -11,6 +9,6 @@ const userSchema = new Schema({
     }, 
 });
 
-User.plugin(passportLocalMongoose);
+userSchema .plugin(passportLocalMongoose);
 
 module.exports = new mongoose.model('User', userSchema);

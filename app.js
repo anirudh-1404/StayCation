@@ -8,6 +8,9 @@ const ExpressError = require('./utils/ExpressError.js');
 const listing = require('./models/listing.js');
 const session = require('express-session');
 const flash = require("connect-flash");
+const passport = require('passport');
+const LocalSrategy = require('passport-local');
+const User = require('./models/user.js');
 
 // USE THESE BEFORE YOUR ROUTES TO ADD REVIEWS, AND METHODOVERRIDE - TO ENSURE THAT BODY IS PROPERLY PARSED AND AVAILABLE TO ROUTE HANDLERS.
 app.use(express.urlencoded({ extended: true }));
@@ -15,8 +18,9 @@ app.use(methodOverride("_method"))
 
 app.set('view engine', "ejs")
 app.set("views", path.join(__dirname, "views"));
-app.engine('ejs', ejsMate); 
+app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname, "/public")))
+
 
 const sessionOptions = {
     secret: 'secretcode',
@@ -32,17 +36,34 @@ const sessionOptions = {
 app.use(session(sessionOptions));
 app.use(flash());
 
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalSrategy(User.authenticate()));
+
 app.use((req, res, next) => {
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error')
     next();
 })
 
-const listings = require('./routes/listings.js');
-const reviews = require('./routes/reviews.js');
+// app.get('/demoUser', async (req, res) => {
+//     let fakeUser = new User({
+//         email: 'student@gmail.com',
+//         username: 'Delta-student'
+//     })
 
-app.use('/listings', listings)
-app.use('/listings/:id/reviews', reviews);
+//     let registeredUser = await User.register(fakeUser, "helloworld");
+
+//     res.send(registeredUser);
+// });
+
+const listingsRouter = require('./routes/listings.js');
+const reviewRouter = require('./routes/reviews.js');
+const userRouter = require('./routes/user.js');
+
+app.use('/listings', listingsRouter)
+app.use('/listings/:id/reviews', reviewRouter);
+app.use('/', userRouter);
 
 main().then((res) => { console.log('connection successful') })
     .catch((err) => { console.log(err) })
