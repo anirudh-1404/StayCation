@@ -23,15 +23,15 @@ app.use(express.static(path.join(__dirname, "/public")))
 
 
 const sessionOptions = {
-    secret: 'secretcode',
+    secret: "Randomstring",
     resave: false,
     saveUninitialized: true,
     cookie: {
         expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
         maxAge: 7 * 24 * 60 * 60 * 1000,
-        httpOnly: true
-    }
-}
+        httpOnly: true,
+    },
+};
 
 app.use(session(sessionOptions));
 app.use(flash());
@@ -39,10 +39,12 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalSrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 app.use((req, res, next) => {
     res.locals.success = req.flash('success');
-    res.locals.error = req.flash('error')
+    res.locals.error = req.flash('error');
     next();
 })
 

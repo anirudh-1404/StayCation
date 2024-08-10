@@ -29,7 +29,8 @@ router.get('/login', (req, res) => {
 })
 
 router.post('/login', passport.authenticate('local', { failureRedirect: '/login', failureFlash: true }), async (req, res) => {
-    res.send('Welcome to StayCation! You are logged in.')
+    req.flash("success", 'Welcome to StayCation! You are logged in.');
+    res.redirect('/listings');
 
 })
 
