@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const Review = require('./review.js');
 
 const listingSchema = new Schema({
-  title: { type: String, required: true },
+  title: { type: String, required: true, },
   description: { type: String, required: true },
   image: {
     type : String     
@@ -18,6 +18,10 @@ const listingSchema = new Schema({
       ref: "Review",
     },
   ],
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+  },
 
 });
 

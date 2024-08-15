@@ -5,7 +5,7 @@
                 <br>
                 <h3 class="n-heading">Create a New Listing</h3>
                 <br>
-                <form action="/listings" method="post" class="needs-validation" novalidate>
+                <form action="/listings" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
 
                     <div class="mb-3">
                         <label for="title" class="form-label">Title</label>
@@ -21,11 +21,11 @@
                         <div class="invalid-feedback">Please enter a short description.</div>
                         <div class="valid-feedback">Description looks good!</div>
                     </div>
-                    
+        
                     <div class="mb-3">
-                        <label for="image" class="form-label">Image / URL Link</label>
-                        <input type="text" name="listing[image]" placeholder="Enter image/URL Link"
-                            class="form-control" />
+                        <label for="image" class="form-label">Upload Listing Image</label>
+                        <input type="file" name="listing[image]" placeholder="Enter image/URL Link"
+                            class="form-control" value="https://freerangestock.com/sample/126371/beach-with-palm-tree-during-sunset.jpg"/>
                     </div>
 
                     <div class="row">
