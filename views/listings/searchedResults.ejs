@@ -1,0 +1,12 @@
+<% layout("/layouts/boilerplate") -%>
+
+    <h1>Searched destinations: </h1>
+    <%for(result of countryListing) { %>
+        <h3>
+            <%= result.title %>
+        </h3>
+        <h5>
+            <%= result.location %>
+        </h5>
+
+        <% } %>

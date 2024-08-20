@@ -1,17 +1,29 @@
+if(process.env.NODE_ENV != "production") {
+    require('dotenv').config();
+}
+
+var bodyParser = require('body-parser')
+
+console.log(process.env.SECRET);
+
 const express = require('express')
 const app = express();
 const mongoose = require('mongoose')
+app.use(bodyParser.urlencoded());
+app.use(bodyParser.json());
 const path = require('path');
 const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
 const ExpressError = require('./utils/ExpressError.js');
 const listing = require('./models/listing.js');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const flash = require("connect-flash");
 const passport = require('passport');
 const LocalSrategy = require('passport-local');
 const User = require('./models/user.js');
 
+const dbUrl = process.env.ATLASDB_URL;
 // USE THESE BEFORE YOUR ROUTES TO ADD REVIEWS, AND METHODOVERRIDE - TO ENSURE THAT BODY IS PROPERLY PARSED AND AVAILABLE TO ROUTE HANDLERS.
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"))
@@ -21,9 +33,21 @@ app.set("views", path.join(__dirname, "views"));
 app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname, "/public")))
 
+const store = MongoStore.create({
+    mongoUrl: dbUrl,
+    crypto: {
+        secret: process.env.SECRET
+    },
+    touchAfter: 24*3600,
+});
+
+store.on('error', () => {
+    console.log('session store error');
+})
 
 const sessionOptions = {
-    secret: "Randomstring",
+    store,
+    secret: process.env.SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -49,36 +73,30 @@ app.use((req, res, next) => {
     next();
 })
 
-// app.get('/demoUser', async (req, res) => {
-//     let fakeUser = new User({
-//         email: 'student@gmail.com',
-//         username: 'Delta-student'
-//     })
-
-//     let registeredUser = await User.register(fakeUser, "helloworld");
-
-//     res.send(registeredUser);
-// });
 
 const listingsRouter = require('./routes/listings.js');
 const reviewRouter = require('./routes/reviews.js');
 const userRouter = require('./routes/user.js');
+const { env } = require('process');
+const Listing = require('./models/listing.js');
 
-app.use('/listings', listingsRouter)
-app.use('/listings/:id/reviews', reviewRouter);
-app.use('/', userRouter);
 
 main().then((res) => { console.log('connection successful') })
     .catch((err) => { console.log(err) })
 
 async function main() {
-    await mongoose.connect('mongodb://127.0.0.1:27017/StayCation')
+    await mongoose.connect(dbUrl);
 }
 
-// app.get('/', (req, res) => {
-//     res.send('Hi, I am root')
-// })
 
+app.get('/test', async (req, res) => {
+    const data = await Listing.find()
+    res.json({data})
+})
+
+app.use('/listings', listingsRouter)
+app.use('/listings/:id/reviews', reviewRouter);
+app.use('/', userRouter);
 
 // if request goes to any other path except of all these
 app.all("*", (req, res, next) => {

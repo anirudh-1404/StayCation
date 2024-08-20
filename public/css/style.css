@@ -140,3 +140,22 @@ body {
     color: #222222 !important;
     margin-bottom: 1rem;
 }
+
+/* Map */
+#map { 
+    height: 400px;
+    width: 80vh;
+ }
+
+ /* new listing button */
+ .btn-newListing{
+    border-radius: 1rem !important;
+    border-color: #fe424d !important;
+    margin-right: 1rem !important;
+    margin-top: 0.2rem !important;
+ }
+
+ .btn-newListing:hover {
+    background-color: #fe424d !important;
+    color: white !important;
+ }

@@ -7,7 +7,8 @@ const listingSchema = new Schema({
   title: { type: String, required: true, },
   description: { type: String, required: true },
   image: {
-    type : String     
+    url: String,
+    filename: String,
   },
   price: { type: Number, required: true },
   location: { type: String, required: true },
@@ -22,12 +23,23 @@ const listingSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
   },
+  geometry: {
+    type: {
+      type: String,
+      enum: ['Point'],
+      required: true,
+    },
+    coordinates: {
+      type: [Number],
+      required: true,
+    },
+  },
 
 });
 
-listingSchema.post("findOneAndDelete", async(listing) => {
-  if(listing) {
-    await Review.deleteMany({_id: {$in: listing.reviews}});
+listingSchema.post("findOneAndDelete", async (listing) => {
+  if (listing) {
+    await Review.deleteMany({ _id: { $in: listing.reviews } });
   }
 })
 
