@@ -101,7 +101,7 @@ app.use('/', userRouter);
 // if request goes to any other path except of all these
 app.all("*", (req, res, next) => {
     next(new ExpressError(404, "PAGE NOT FOUND!"))
-    console.log('PAGE NOT FOUND!');
+    console.log('PAGE NOT FOUND!')
 })
 
 //error middlware
